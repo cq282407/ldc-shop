@@ -684,6 +684,24 @@ export async function markAllUserNotificationsRead(userId: string) {
     }
 }
 
+export async function getUserUnreadNotificationCount(userId: string) {
+    await ensureDatabaseInitialized()
+    try {
+        const rows = await db.select({
+            count: sql<number>`count(*)`
+        })
+            .from(userNotifications)
+            .where(and(eq(userNotifications.userId, userId), eq(userNotifications.isRead, false)))
+        return Number(rows[0]?.count || 0)
+    } catch (error: any) {
+        if (isMissingTable(error)) {
+            await ensureUserNotificationsTable()
+            return 0
+        }
+        throw error
+    }
+}
+
 export async function searchActiveProducts(params: {
     q?: string
     category?: string

@@ -2,8 +2,8 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { orders, loginUsers } from "@/lib/db/schema"
-import { eq, desc, sql } from "drizzle-orm"
-import { normalizeTimestampMs, getLoginUserEmail, getSetting, getUserNotifications } from "@/lib/db/queries"
+import { eq, sql } from "drizzle-orm"
+import { getLoginUserEmail, getSetting, getUserNotifications } from "@/lib/db/queries"
 import { ProfileContent } from "@/components/profile-content"
 
 export const dynamic = 'force-dynamic'
@@ -65,30 +65,6 @@ export default async function ProfilePage() {
         // Ignore errors
     }
 
-    // Get recent orders (last 5)
-    let recentOrders: Array<{
-        orderId: string
-        productName: string
-        amount: string
-        status: string | null
-        createdAt: Date | null
-    }> = []
-    try {
-        recentOrders = await db.select({
-            orderId: orders.orderId,
-            productName: orders.productName,
-            amount: orders.amount,
-            status: orders.status,
-            createdAt: orders.createdAt
-        })
-            .from(orders)
-            .where(eq(orders.userId, userId))
-            .orderBy(desc(normalizeTimestampMs(orders.createdAt)))
-            .limit(5)
-    } catch {
-        // Ignore errors
-    }
-
     // Get recent notifications
     let notifications: Array<{
         id: number
@@ -126,7 +102,6 @@ export default async function ProfilePage() {
             points={userPoints}
             checkinEnabled={checkinEnabled}
             orderStats={orderStats}
-            recentOrders={recentOrders}
             notifications={notifications}
         />
     )

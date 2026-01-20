@@ -31,13 +31,6 @@ interface ProfileContentProps {
         pending: number
         delivered: number
     }
-    recentOrders: Array<{
-        orderId: string
-        productName: string
-        amount: string
-        status: string | null
-        createdAt: Date | null
-    }>
     notifications: Array<{
         id: number
         type: string
@@ -49,7 +42,7 @@ interface ProfileContentProps {
     }>
 }
 
-export function ProfileContent({ user, points, checkinEnabled, orderStats, recentOrders, notifications: initialNotifications }: ProfileContentProps) {
+export function ProfileContent({ user, points, checkinEnabled, orderStats, notifications: initialNotifications }: ProfileContentProps) {
     const { t } = useI18n()
     const [email, setEmail] = useState(user.email || '')
     const [savingEmail, setSavingEmail] = useState(false)
@@ -81,23 +74,6 @@ export function ProfileContent({ user, points, checkinEnabled, orderStats, recen
         }
         refresh()
     }, [])
-
-    const getStatusBadge = (status: string | null) => {
-        switch (status) {
-            case 'pending':
-                return <Badge variant="outline" className="text-yellow-600 border-yellow-600">{t('order.status.pending')}</Badge>
-            case 'paid':
-                return <Badge variant="outline" className="text-blue-600 border-blue-600">{t('order.status.paid')}</Badge>
-            case 'delivered':
-                return <Badge variant="outline" className="text-green-600 border-green-600">{t('order.status.delivered')}</Badge>
-            case 'refunded':
-                return <Badge variant="outline" className="text-gray-600 border-gray-600">{t('order.status.refunded')}</Badge>
-            case 'cancelled':
-                return <Badge variant="outline" className="text-red-600 border-red-600">{t('order.status.cancelled')}</Badge>
-            default:
-                return <Badge variant="outline">{status || '-'}</Badge>
-        }
-    }
 
     return (
         <main className="container py-8 max-w-2xl">
@@ -219,37 +195,6 @@ export function ProfileContent({ user, points, checkinEnabled, orderStats, recen
                     </div>
                 </CardContent>
             </Card>
-
-            {/* Recent Orders */}
-            {recentOrders.length > 0 && (
-                <Card className="mb-6">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-base">{t('admin.stats.recentOrders')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {recentOrders.map((order) => (
-                                <Link
-                                    key={order.orderId}
-                                    href={`/order/${order.orderId}`}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                                >
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium truncate">{order.productName}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-'}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium">{order.amount}</span>
-                                        {getStatusBadge(order.status)}
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
 
             {/* Inbox */}
             <Card className="mb-6">
